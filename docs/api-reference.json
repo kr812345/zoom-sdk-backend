@@ -1,0 +1,374 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Zoom SDK Backend API",
+    "version": "1.0.0",
+    "description": "API documentation for Zoom SDK Backend integration"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/api/zoom/": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Check if the API is running",
+        "responses": {
+          "200": {
+            "description": "API is running",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Zoom SDK Backend API is running"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/zoom/access-token": {
+      "post": {
+        "summary": "Generate Access Token",
+        "description": "Generate a new Zoom access token",
+        "responses": {
+          "200": {
+            "description": "Access token generated successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Access token generated successfully",
+                  "data": {
+                    "access_token": "eyJhbGciOiJIUzI1..."
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to generate access token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Failed to generate access token",
+                  "error": "Invalid credentials"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/zoom/signature": {
+      "post": {
+        "summary": "Generate Meeting Signature",
+        "description": "Generate a signature for joining a Zoom meeting",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["meetingNumber", "role"],
+                "properties": {
+                  "meetingNumber": {
+                    "type": "string",
+                    "description": "The Zoom meeting number"
+                  },
+                  "role": {
+                    "type": "number",
+                    "description": "Role number (0 for attendee, 1 for host)",
+                    "enum": [0, 1]
+                  }
+                }
+              },
+              "example": {
+                "meetingNumber": "123456789",
+                "role": 0
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Signature generated successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Signature generated successfully",
+                  "data": {
+                    "signature": "eyJhbGciOiJIUzI1..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Meeting number and role are required"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/zoom/zak": {
+      "post": {
+        "summary": "Generate ZAK Token",
+        "description": "Generate a Zoom Access Key (ZAK) token",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ZAK token generated successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "ZAK token generated successfully",
+                  "data": {
+                    "token": "eyJhbGciOiJIUzI1..."
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Access token is required"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/zoom/registrant": {
+      "post": {
+        "summary": "Create Meeting Registrant",
+        "description": "Register a participant for a Zoom meeting",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["meetingId", "email", "firstName"],
+                "properties": {
+                  "meetingId": {
+                    "type": "string",
+                    "description": "The Zoom meeting ID"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Registrant's email address"
+                  },
+                  "firstName": {
+                    "type": "string",
+                    "description": "Registrant's first name"
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "description": "Registrant's last name (optional)"
+                  }
+                }
+              },
+              "example": {
+                "meetingId": "123456789",
+                "email": "attendee@example.com",
+                "firstName": "John",
+                "lastName": "Doe"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registrant created successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "Registrant created successfully",
+                  "data": {
+                    "registrant_id": "abcd1234",
+                    "join_url": "https://zoom.us/w/123456789?tk=..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Email and first name are required"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/zoom/get-user": {
+      "get": {
+        "summary": "Get User Information",
+        "description": "Get current user's Zoom account information",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User data retrieved successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "User data retrieved successfully",
+                  "data": {
+                    "id": "user123",
+                    "first_name": "John",
+                    "last_name": "Doe",
+                    "email": "john@example.com",
+                    "type": 2,
+                    "role_name": "Owner",
+                    "pmi": 1234567890,
+                    "timezone": "America/Los_Angeles",
+                    "verified": 1,
+                    "created_at": "2020-01-01T00:00:00Z",
+                    "last_login_time": "2025-01-01T00:00:00Z",
+                    "language": "en-US",
+                    "status": "active"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Access token is required"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter the access token obtained from the /access-token endpoint"
+      }
+    }
+  },
+  "examples": {
+    "frontend_usage": {
+      "typescript": {
+        "description": "Example of how to use the API in a TypeScript frontend",
+        "code": `
+// Function to get access token
+async function getAccessToken() {
+  const response = await fetch('http://localhost:5000/api/zoom/access-token', {
+    method: 'POST'
+  });
+  const data = await response.json();
+  return data.data.access_token;
+}
+
+// Function to generate meeting signature
+async function getMeetingSignature(meetingNumber: string, role: 0 | 1) {
+  const response = await fetch('http://localhost:5000/api/zoom/signature', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ meetingNumber, role })
+  });
+  const data = await response.json();
+  return data.data.signature;
+}
+
+// Function to get ZAK token
+async function getZAKToken(accessToken: string) {
+  const response = await fetch('http://localhost:5000/api/zoom/zak', {
+    method: 'POST',
+    headers: {
+      'Authorization': \`Bearer \${accessToken}\`,
+      'Content-Type': 'application/json'
+    }
+  });
+  const data = await response.json();
+  return data.data.token;
+}
+
+// Function to register participant
+async function registerParticipant(accessToken: string, meetingId: string, email: string, firstName: string, lastName?: string) {
+  const response = await fetch('http://localhost:5000/api/zoom/registrant', {
+    method: 'POST',
+    headers: {
+      'Authorization': \`Bearer \${accessToken}\`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      meetingId,
+      email,
+      firstName,
+      lastName
+    })
+  });
+  const data = await response.json();
+  return data.data;
+}
+
+// Function to get user info
+async function getUserInfo(accessToken: string) {
+  const response = await fetch('http://localhost:5000/api/zoom/get-user', {
+    headers: {
+      'Authorization': \`Bearer \${accessToken}\`
+    }
+  });
+  const data = await response.json();
+  return data.data;
+}
+        `
+      }
+    }
+  }
+}
